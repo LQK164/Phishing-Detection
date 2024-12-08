@@ -3,10 +3,10 @@ name: Run URL Collect and Extract
 on:
   push:
     branches:
-      - main  # Kích hoạt workflow khi có đẩy lên nhánh chính
+      - main
   pull_request:
     branches:
-      - main  # Kích hoạt workflow khi có pull request vào nhánh chính
+      - main
 
 jobs:
   run-script:
@@ -21,38 +21,33 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'  # Chọn phiên bản Python bạn muốn sử dụng
+        python-version: '3.11'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # Cài đặt các phụ thuộc nếu có, bạn có thể thêm các package cần thiết
-        pip install -r requirements.txt #httpx tenacity
+        pip install -r requirements.txt
 
     - name: Run URLs collecting
-      run: |
-        python urls_collecting.py  
+      run: python urls_collecting.py  
 
     - name: Run URLs filtering
-      run: |
-        python URLs_Filter.py
+      run: python URLs_Filter.py
     
     - name: Run feature extraction
-      run: |
-        python feature_extraction.py
+      run: python feature_extraction.py
 
     - name: Commit and push changes
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        git add ./URLs_Storage/
-        git commit -m "Update URLs collected on $(date +'%Y-%m-%d %H:%M:%S')"
-        git add active_phishing_urls.txt
-        git commit -m "Update active_phishing_urls.txt on $(date +'%Y-%m-%d %H:%M:%S')"
-        git add new_phishing_urls.txt
-        git commit -m "Update new_phishing_urls.txt on $(date +'%Y-%m-%d %H:%M:%S')"
-        git add output.csv
-        git commit -m "Update output.csv on $(date +'%Y-%m-%d %H:%M:%S')"
-        git add filter_output.csv
-        git commit -m "Create filtered_output.csv on $(date +'%Y-%m-%d %H:%M:%S')"
-        git push origin main
+        
+        # Thêm tất cả thay đổi vào staging
+        git add .
+        
+        # Kiểm tra có thay đổi nào không
+        if ! git diff --cached --quiet; then
+          git commit -m "Update generated files on $(date +'%Y-%m-%d %H:%M:%S')"
+          git push origin main
+        else
+          echo "No changes to commit."
