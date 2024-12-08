@@ -1,0 +1,10 @@
+httpx
+tenacity
+urllib3
+dnspython
+python-Levenshtein
+pandas
+requests
+tldextract
+python-whois
+beautifulsoup4
